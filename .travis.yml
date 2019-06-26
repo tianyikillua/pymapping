@@ -1,5 +1,11 @@
 language: python
 
+addons:
+  apt:
+    packages:
+      - swig
+      - cmake
+
 python:
   - "3.6"
 
@@ -8,6 +14,12 @@ before_install:
 
 install:
   - pip3 install .
+
+before_script:
+  - wget --quiet http://files.salome-platform.org/Salome/other/medCoupling-9.3.0.tar.gz
+  - tar -xzvf medCoupling-9.3.0.tar.gz && cd MEDCOUPLING-9.3.0
+  - cmake -DCONFIGURATION_ROOT_DIR=../../CONFIGURATION_9.3.0 -DMEDCOUPLING_MICROMED=ON -DMEDCOUPLING_BUILD_DOC=OFF -DMEDCOUPLING_ENABLE_PARTITIONER=OFF -DMEDCOUPLING_PARTITIONER_SCOTCH=OFF -DMEDCOUPLING_PARTITIONER_METIS=OFF -DMEDCOUPLING_BUILD_TESTS=OFF -DMEDCOUPLING_ENABLE_RENUMBER=OFF -DMEDCOUPLING_WITH_FILE_EXAMPLES=OFF ..
+  - sudo cmake --build . --config Release --target INSTALL
 
 script:
   - cd test

@@ -1,0 +1,17 @@
+language: python
+
+python:
+  - "3.6"
+
+before_install:
+  - pip3 install -U -r test_requirements.txt
+
+install:
+  - pip3 install .
+
+script:
+  - cd test
+  - pytest --cov pymapping
+
+after_success:
+  - codecov

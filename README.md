@@ -7,7 +7,7 @@
 This package is a handy Python (re-)wrapper of [MEDCoupling](https://docs.salome-platform.org/latest/dev/MEDCoupling/developer/index.html). It can be used to transfer finite element data defined on nodes (P1 fields) or on cells (P0 fields) between two [meshio](https://github.com/nschloe/meshio)-compatible meshes.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/4027283/60191481-ab3af580-9834-11e9-8f55-e02f2bd6c0fa.png" width="500">
+  <img src="https://user-images.githubusercontent.com/4027283/60191481-ab3af580-9834-11e9-8f55-e02f2bd6c0fa.png" width="400">
 </p>
 
 Some notebook examples can be found in `examples`.
@@ -28,7 +28,7 @@ cmake -DCONFIGURATION_ROOT_DIR=../../CONFIGURATION_9.3.0 -DCMAKE_INSTALL_PREFIX=
 cmake --build . --config Release --target INSTALL
 ```
 
-For Windows users, the building has been tested with the latest Visual Studio 2019, with `-G "Visual Studio 16 2019" -A x64`. If you are using `conda` with `py36` a Python 3.6 `env`, you can
+For Windows users, the building has been tested with the latest Visual Studio 2019, with `-G "Visual Studio 16 2019" -A x64`. If you are using `conda` with `py36` a Python 3.6 environment, you can
 
 1. Specify `DCMAKE_INSTALL_PREFIX=...\Miniconda3\envs\py36\Library`
 2. Specify `DPYTHON_ROOT_DIR=...\Miniconda3\envs\py36`

@@ -7,7 +7,7 @@ celltype_mc = {
     "quad": mc.NORM_QUAD4,
     "tetra": mc.NORM_TETRA4,
     "pyramid": mc.NORM_PYRA5,
-    "hexahedron": mc.NORM_HEXA8
+    "hexahedron": mc.NORM_HEXA8,
 }
 
 celltype_3d = ["tetra", "pyramid", "hexahedron"]
@@ -35,14 +35,18 @@ def mesh_mc_from_meshio(mesh, check=False):
     # Cells
     conn = np.array([], dtype=np.int32)
     conn_index = np.array([], dtype=np.int32)
-    ncells_cumsum = np.hstack([[0], np.cumsum([len(cells) for cells in mesh.cells.values()])])
+    ncells_cumsum = np.hstack(
+        [[0], np.cumsum([len(cells) for cells in mesh.cells.values()])]
+    )
     for i_celltype, celltype in enumerate(mesh.cells):
         celltype_ = celltype_mc[celltype]
         ncells_celltype, npoints_celltype = mesh.cells[celltype].shape
         col_celltype = celltype_ * np.ones((ncells_celltype, 1), dtype=np.int32)
         conn_celltype = np.hstack([col_celltype, mesh.cells[celltype]]).flatten()
         conn = np.hstack([conn, conn_celltype])
-        conn_index_celltype = ncells_cumsum[i_celltype] + (1 + npoints_celltype) * np.arange(ncells_celltype, dtype=np.int32)
+        conn_index_celltype = ncells_cumsum[i_celltype] + (
+            1 + npoints_celltype
+        ) * np.arange(ncells_celltype, dtype=np.int32)
         conn_index = np.hstack([conn_index, conn_index_celltype])
     conn_index = np.hstack([conn_index, [len(conn)]]).astype(np.int32)
     conn = mc.DataArrayInt(conn.astype(np.int32))
@@ -77,6 +81,7 @@ class MappingResult:
     """
     Container class for mapped field on the target mesh
     """
+
     def __init__(self, field_target, mesh_target=None):
         self.field_target = field_target
         self.dis = self.field_target.getDiscretization()
@@ -94,7 +99,9 @@ class MappingResult:
         Return the location of discretization points on which
         the field array is defined
         """
-        return self.dis.getLocalizationOfDiscValues(self.field_target.getMesh()).toNumPyArray()
+        return self.dis.getLocalizationOfDiscValues(
+            self.field_target.getMesh()
+        ).toNumPyArray()
 
     def export_vtk(self, vtkfile):
         """
@@ -109,6 +116,7 @@ class MappingResult:
         """
         assert self.mesh_target is not None
         from copy import deepcopy
+
         mesh_target = deepcopy(self.mesh_target)
         name = self.field_target.getName()
         if self.dis.getRepr() == "P1":
@@ -125,6 +133,7 @@ class Remapper:
     Args:
         verbose (bool): Whehter print out progress information
     """
+
     def __init__(self, verbose=True):
         self.remap = mc.MEDCouplingRemapper()
         self.verbose = verbose
@@ -180,7 +189,8 @@ class Remapper:
         """
         self._print("Transfering...")
         self.field_source = field_mc_from_meshio(
-            self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc)
+            self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc
+        )
         self.field_target = self.remap.transferField(self.field_source, dftValue=np.nan)
         self.field_target.setName(field_name)
         return MappingResult(self.field_target, self.mesh_target)

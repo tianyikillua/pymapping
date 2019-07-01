@@ -1,7 +1,7 @@
 import numpy as np
 import medcoupling as mc
 
-celltype_mc = {
+meshio_to_mc_type = {
     "line": mc.NORM_SEG2,
     "triangle": mc.NORM_TRI3,
     "quad": mc.NORM_QUAD4,
@@ -9,6 +9,7 @@ celltype_mc = {
     "pyramid": mc.NORM_PYRA5,
     "hexahedron": mc.NORM_HEXA8,
 }
+mc_to_meshio_type = {v: k for k, v in meshio_to_mc_type.items()}
 
 celltype_3d = ["tetra", "pyramid", "hexahedron"]
 celltype_2d = ["triangle", "quad"]
@@ -17,6 +18,9 @@ celltype_2d = ["triangle", "quad"]
 def mesh_mc_from_meshio(mesh, check=False):
     """
     Convert a ``meshio`` mesh to a ``medcoupling`` mesh
+
+    Args:
+        check (bool): Check if the ``medcoupling`` mesh is consist
     """
     # Determine mesh dimension
     celltypes = list(mesh.cells.keys())
@@ -35,18 +39,15 @@ def mesh_mc_from_meshio(mesh, check=False):
     # Cells
     conn = np.array([], dtype=np.int32)
     conn_index = np.array([], dtype=np.int32)
-    ncells_cumsum = np.hstack(
-        [[0], np.cumsum([len(cells) for cells in mesh.cells.values()])]
-    )
-    for i_celltype, celltype in enumerate(mesh.cells):
-        celltype_ = celltype_mc[celltype]
+    for celltype in mesh.cells:
+        celltype_ = meshio_to_mc_type[celltype]
         ncells_celltype, npoints_celltype = mesh.cells[celltype].shape
         col_celltype = celltype_ * np.ones((ncells_celltype, 1), dtype=np.int32)
         conn_celltype = np.hstack([col_celltype, mesh.cells[celltype]]).flatten()
-        conn = np.hstack([conn, conn_celltype])
-        conn_index_celltype = ncells_cumsum[i_celltype] + (
+        conn_index_celltype = len(conn) + (
             1 + npoints_celltype
         ) * np.arange(ncells_celltype, dtype=np.int32)
+        conn = np.hstack([conn, conn_celltype])
         conn_index = np.hstack([conn_index, conn_index_celltype])
     conn_index = np.hstack([conn_index, [len(conn)]]).astype(np.int32)
     conn = mc.DataArrayInt(conn.astype(np.int32))
@@ -58,10 +59,15 @@ def mesh_mc_from_meshio(mesh, check=False):
     return mesh_mc
 
 
-def field_mc_from_meshio(mesh, field_name, on="points", mesh_mc=None):
+def field_mc_from_meshio(mesh, field_name, on="points", mesh_mc=None, nature="IntensiveMaximum"):
     """
-    Todo:
-        Currently the field must be defined on points (nodal field)
+    Convert a ``meshio`` field to a ``medcoupling`` field
+
+    Args:
+        field_name (str): Name of the field defined in the ``meshio`` mesh
+        on (str): Support of the field (``points`` or ``cells``)
+        mesh_mc (``medcoupling`` mesh): MEDCoupling mesh of the current ``meshio`` mesh
+        nature (str): Physical nature of the field (for instance ``IntensiveMaximum``)
     """
     assert on in ["points", "cells"]
     if on == "points":
@@ -72,8 +78,28 @@ def field_mc_from_meshio(mesh, field_name, on="points", mesh_mc=None):
     if mesh_mc is None:
         mesh_mc = mesh_mc_from_meshio(mesh)
     field.setMesh(mesh_mc)
-    field.setArray(mc.DataArrayDouble(mesh.point_data[field_name].copy()))
-    field.setNature(mc.IntensiveMaximum)
+
+    # Point fields
+    if on == "points":
+        assert field_name in mesh.point_data
+        field.setArray(mc.DataArrayDouble(mesh.point_data[field_name].copy()))
+    else:
+        # Cell fields
+        assert on == "cells"
+        array = None
+        celltypes_mc = mesh_mc.getAllGeoTypesSorted()
+        for celltype_mc in celltypes_mc:
+            celltype = mc_to_meshio_type[celltype_mc]
+            assert celltype in mesh.cell_data
+            assert field_name in mesh.cell_data[celltype]
+            values = mesh.cell_data[celltype][field_name]
+            if array is None:
+                array = values
+            else:
+                array = np.concatenate([array, values])
+        field.setArray(mc.DataArrayDouble(array))
+
+    field.setNature(eval("mc." + nature))
     return field
 
 
@@ -119,10 +145,30 @@ class MappingResult:
 
         mesh_target = deepcopy(self.mesh_target)
         name = self.field_target.getName()
+
+        # Point fields
+        array = self.array()
         if self.dis.getRepr() == "P1":
-            mesh_target.point_data[name] = self.array()
+            mesh_target.point_data[name] = array
         else:
-            raise NotImplementedError("P0 field not yet implemented")
+            # Cell fields
+            mesh_mc = self.field_target.getMesh()
+            celltypes_mc = mesh_mc.getAllGeoTypesSorted()
+            begin = None
+            end = None
+            for celltype_mc in celltypes_mc:
+                celltype = mc_to_meshio_type[celltype_mc]
+                if celltype not in mesh_target.cell_data:
+                    mesh_target.cell_data[celltype] = {}
+                len_mesh_celltype = mesh_mc.getNumberOfCellsWithType(celltype_mc)
+                if begin is None:
+                    begin = 0
+                    end = len_mesh_celltype
+                else:
+                    begin = end
+                    end = begin + len_mesh_celltype
+                mesh_target.cell_data[celltype][name] = array[begin:end]
+
         return mesh_target
 
 
@@ -163,6 +209,7 @@ class Remapper:
             self.remap.setIntersectionType(eval("mc." + intersection_type))
         elif method[:2] == "P1":
             self.remap.setIntersectionType(mc.PointLocator)
+        self.method = method
 
         self._print("Loading source mesh...")
         self.mesh_source = mesh_source
@@ -175,19 +222,23 @@ class Remapper:
         self._print("Preparing...")
         self.remap.prepare(self.mesh_source_mc, self.mesh_target_mc, method)
 
-    def transfer(self, field_name, on="points"):
+    def transfer(self, field_name, nature="IntensiveMaximum"):
         """
         Transfer field from the source mesh to the target mesh, after
         :py:meth:`~.Remapper.prepare`.
 
         Args:
-            field_name (str): The name of the field defined in the source mesh
-            on (str): The support of the source field (``points`` or ``cells``)
+            field_name (str): Name of the field defined in the source mesh
+            nature (str): Physical nature of the field (for instance ``IntensiveMaximum``)
 
         Todo:
             Currently the source field must be defined on points (nodal field)
         """
         self._print("Transfering...")
+        if self.method[:2] == "P1":
+            on = "points"
+        else:
+            on = "cells"
         self.field_source = field_mc_from_meshio(
             self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc
         )

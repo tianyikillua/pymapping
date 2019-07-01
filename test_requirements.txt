@@ -1,4 +1,5 @@
 meshio
+pygmsh
 pytest
 pytest-cov
 codecov

@@ -8,6 +8,7 @@ addons:
       - swig
       - cmake
       - python3.6-dev
+      - gmsh
 
 python:
   - "3.6"

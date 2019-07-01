@@ -25,10 +25,22 @@ Before using this package, you need to install MEDCoupling. Currently the 9.3.0 
 mkdir build
 cd build
 cmake -DCONFIGURATION_ROOT_DIR=../../CONFIGURATION_9.3.0 -DCMAKE_INSTALL_PREFIX=[TO BE SPECIFIED] -DPYTHON_ROOT_DIR=[TO BE SPECIFIED] -DMEDCOUPLING_MICROMED=ON -DMEDCOUPLING_BUILD_DOC=OFF -DMEDCOUPLING_ENABLE_PARTITIONER=OFF -DMEDCOUPLING_PARTITIONER_SCOTCH=OFF -DMEDCOUPLING_PARTITIONER_METIS=OFF -DMEDCOUPLING_BUILD_TESTS=OFF -DMEDCOUPLING_ENABLE_RENUMBER=OFF -DMEDCOUPLING_WITH_FILE_EXAMPLES=OFF ..
-cmake --build . --config Release --target INSTALL
+cmake --build . --config Release --target install
 ```
 
-For Windows users, the building has been tested with the latest Visual Studio 2019, with `-G "Visual Studio 16 2019" -A x64`. If you are using `conda` with `py36` a Python 3.6 environment, you can
+For Windows users, the building has been tested with the latest Visual Studio 2019, with `-G "Visual Studio 16 2019" -A x64`. However you must modify `MEDCOUPLING-9.3.0/src/MEDCoupling_Swig/CMakeLists.txt` and add the last missing line
+
+```
+IF(WIN32)
+  # Under Windows MEDCoupling conflicts wiht medcoupling from PyWrapping
+  SET(MEDCouling_target_name MEDCouplingCompat)
+  SET_PROPERTY(SOURCE MEDCoupling.i PROPERTY SWIG_MODULE_NAME MEDCouplingCompat)
+  SET_PROPERTY(SOURCE MEDCoupling.i PROPERTY COMPILE_DEFINITIONS WIN32)
+  SET(SWIG_MODULE_MEDCouplingCompat_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
+ELSE()
+```
+
+If you are using `conda` with `py36` a Python 3.6 environment, you can
 
 1. Specify `DCMAKE_INSTALL_PREFIX=...\Miniconda3\envs\py36\Library`
 2. Specify `DPYTHON_ROOT_DIR=...\Miniconda3\envs\py36`

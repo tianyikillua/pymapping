@@ -1,7 +1,8 @@
 import meshio
-import pymapping
-import pytest
 import numpy as np
+import pytest
+
+import pymapping
 
 
 def mesh_unit_interval(N):

@@ -23,7 +23,7 @@ setup(
     url="https://github.com/tianyikillua/pymapping",
     author=about["__author__"],
     author_email=about["__email__"],
-    install_requires=["numpy"],
+    install_requires=["numpy", "meshio"],
     description="Mapping finite element data between meshes",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -39,4 +39,5 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Physics",
     ],
+    entry_points={"console_scripts": ["pymapping = pymapping.cli:main"]},
 )

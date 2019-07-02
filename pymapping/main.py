@@ -1,4 +1,5 @@
 import numpy as np
+
 import medcoupling as mc
 
 meshio_to_mc_type = {
@@ -17,10 +18,10 @@ celltype_2d = ["triangle", "quad"]
 
 def mesh_mc_from_meshio(mesh, check=False):
     """
-    Convert a ``meshio`` mesh to a ``medcoupling`` mesh
+    Convert a meshio mesh to a medcoupling mesh
 
     Args:
-        check (bool): Check if the ``medcoupling`` mesh is consist
+        check (bool): Check if the medcoupling mesh is consist
     """
     # Determine mesh dimension
     celltypes = list(mesh.cells.keys())
@@ -61,12 +62,12 @@ def mesh_mc_from_meshio(mesh, check=False):
 
 def field_mc_from_meshio(mesh, field_name, on="points", mesh_mc=None, nature="IntensiveMaximum"):
     """
-    Convert a ``meshio`` field to a ``medcoupling`` field
+    Convert a meshio field to a medcoupling field
 
     Args:
         field_name (str): Name of the field defined in the ``meshio`` mesh
         on (str): Support of the field (``points`` or ``cells``)
-        mesh_mc (``medcoupling`` mesh): MEDCoupling mesh of the current ``meshio`` mesh
+        mesh_mc (medcoupling mesh): MEDCoupling mesh of the current ``meshio`` mesh
         nature (str): Physical nature of the field (for instance ``IntensiveMaximum``)
     """
     assert on in ["points", "cells"]
@@ -201,7 +202,7 @@ class Remapper:
             mesh_source (meshio mesh): Source mesh
             mesh_target (meshio mesh): Target mesh
             method (str): Must be ``P1P0``, ``P1P1``, ``P0P0`` or ``P0P1``
-            intersection_type (str): Intersection type depending on meshes and the method
+            intersection_type (str): Intersection algorithm depending on meshes and the method
         """
         # Select intersection type
         assert method in ["P1P0", "P1P1", "P0P0", "P0P1"]

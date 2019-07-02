@@ -1,7 +1,7 @@
 import numpy as np
-import pygmsh
 import pytest
 
+import pygmsh
 import pymapping
 
 
@@ -41,3 +41,27 @@ def test_TUB_triangle(method):
     integral_source = remap.field_source.integral(0, True)
     integral_target = res.field_target.integral(0, True)
     assert np.isclose(integral_source, integral_target, rtol=1e-4)
+
+
+def test_cli():
+    import tempfile
+    import meshio
+
+    mesh_source_file = tempfile.NamedTemporaryFile(suffix=".vtu").name
+    mesh_target_file = tempfile.NamedTemporaryFile(suffix=".vtu").name
+    meshio.write(mesh_source_file, mesh_source)
+    meshio.write(mesh_target_file, mesh_target)
+
+    outfile = tempfile.NamedTemporaryFile(suffix=".npy").name
+    pymapping.cli.main(
+        [
+            mesh_source_file,
+            mesh_target_file,
+            "f(x)",
+            outfile,
+            "--method",
+            "P1P0",
+            "--intersection_type",
+            "Triangulation",
+        ]
+    )

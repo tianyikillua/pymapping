@@ -7,6 +7,7 @@ verify_ssl = true
 pyinstaller = "*"
 
 [packages]
+medcoupling-pypi = "*"
 numpy = "*"
 meshio = "*"
 h5py = "*"

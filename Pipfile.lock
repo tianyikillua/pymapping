@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3a859fa53029d793d0cfa32d2cc2535dec2e310c5c7a8feaeb5c8bc5d05f2d10"
+            "sha256": "ff59d843238b4a6b4d19194f56480d24cc4c53a359152bba6553e7fb16f49e95"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -79,6 +79,14 @@
             ],
             "index": "pypi",
             "version": "==4.3.4"
+        },
+        "medcoupling-pypi": {
+            "hashes": [
+                "sha256:048353558da11f3aa3290fc49a2d386c1c62c34b6ad26046c1f414360c811f30",
+                "sha256:510f78de367bc24dc24a19fcb7bfe3d8becaebb2754ff5f1f3f3bb1dd2227d3f"
+            ],
+            "index": "pypi",
+            "version": "==0.0.1"
         },
         "meshio": {
             "hashes": [

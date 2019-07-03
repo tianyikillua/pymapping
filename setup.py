@@ -23,7 +23,7 @@ setup(
     url="https://github.com/tianyikillua/pymapping",
     author=about["__author__"],
     author_email=about["__email__"],
-    install_requires=["numpy", "meshio"],
+    install_requires=["numpy", "meshio", "medcoupling-pypi"],
     description="Mapping finite element data between meshes",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",

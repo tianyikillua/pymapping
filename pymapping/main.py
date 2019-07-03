@@ -21,6 +21,7 @@ def mesh_mc_from_meshio(mesh, check=False):
     Convert a meshio mesh to a medcoupling mesh
 
     Args:
+        mesh (meshio mesh): Mesh object
         check (bool): Check if the medcoupling mesh is consist
     """
     # Determine mesh dimension
@@ -65,6 +66,7 @@ def field_mc_from_meshio(mesh, field_name, on="points", mesh_mc=None, nature="In
     Convert a meshio field to a medcoupling field
 
     Args:
+        mesh (meshio mesh): Mesh object
         field_name (str): Name of the field defined in the ``meshio`` mesh
         on (str): Support of the field (``points`` or ``cells``)
         mesh_mc (medcoupling mesh): MEDCoupling mesh of the current ``meshio`` mesh
@@ -231,9 +233,6 @@ class Remapper:
         Args:
             field_name (str): Name of the field defined in the source mesh
             nature (str): Physical nature of the field (for instance ``IntensiveMaximum``)
-
-        Todo:
-            Currently the source field must be defined on points (nodal field)
         """
         self._print("Transfering...")
         if self.method[:2] == "P1":

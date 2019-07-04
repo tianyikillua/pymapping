@@ -2,7 +2,8 @@
 
 [![travis](https://img.shields.io/travis/tianyikillua/pymapping.svg?style=flat-square)](https://travis-ci.org/tianyikillua/pymapping)
 [![codecov](https://img.shields.io/codecov/c/github/tianyikillua/pymapping.svg?style=flat-square)](https://codecov.io/gh/tianyikillua/pymapping)
-[![PyPi Version](https://img.shields.io/pypi/v/pymapping.svg?style=flat-square)](https://pypi.org/project/pymapping)
+[![readthedocs](https://readthedocs.org/projects/pymapping/badge/?version=latest&style=flat-square)](https://readthedocs.org/projects/pymapping/?badge=latest)
+[![pypi](https://img.shields.io/pypi/v/pymapping.svg?style=flat-square)](https://pypi.org/project/pymapping)
 
 This package is a handy Python (re-)wrapper of [MEDCoupling](https://docs.salome-platform.org/latest/dev/MEDCoupling/developer/index.html). It can be used to transfer finite element data defined on nodes (P1 fields) or on cells (P0 fields) between two [meshio](https://github.com/nschloe/meshio)-compatible meshes.
 

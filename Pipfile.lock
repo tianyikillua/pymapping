@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ff59d843238b4a6b4d19194f56480d24cc4c53a359152bba6553e7fb16f49e95"
+            "sha256": "5a6aa1a259a856746f0942394b0172d86b99de5dba51db1e0cbd2cf8bfad205d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -80,13 +80,13 @@
             "index": "pypi",
             "version": "==4.3.4"
         },
-        "medcoupling-pypi": {
+        "medcoupling": {
             "hashes": [
-                "sha256:048353558da11f3aa3290fc49a2d386c1c62c34b6ad26046c1f414360c811f30",
-                "sha256:510f78de367bc24dc24a19fcb7bfe3d8becaebb2754ff5f1f3f3bb1dd2227d3f"
+                "sha256:05758c68826d4ee7892828c291e558839ab255535feeeab15ad4377cc2f53b87",
+                "sha256:7822af53fd2ac5db2fbb24bf2dddf50241a5b539c7aa171a8efccf51e15972f2"
             ],
             "index": "pypi",
-            "version": "==0.0.1"
+            "version": "==9.3.0.post1"
         },
         "meshio": {
             "hashes": [

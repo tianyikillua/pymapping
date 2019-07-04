@@ -1,4 +1,4 @@
-VERSION=$(shell python -c "import pymapping; print(pymapping.__version__)")
+VERSION=$(shell python -c 'import pymapping; print(pymapping.__version__)')
 
 default:
 	@echo "\"make publish\"?"

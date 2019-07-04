@@ -225,7 +225,7 @@ class Remapper:
         self._print("Preparing...")
         self.remap.prepare(self.mesh_source_mc, self.mesh_target_mc, method)
 
-    def transfer(self, field_name, nature="IntensiveMaximum"):
+    def transfer(self, field_name, nature="IntensiveMaximum", default_value=np.nan):
         """
         Transfer field from the source mesh to the target mesh, after
         :py:meth:`~.Remapper.prepare`.
@@ -233,6 +233,7 @@ class Remapper:
         Args:
             field_name (str): Name of the field defined in the source mesh
             nature (str): Physical nature of the field (for instance ``IntensiveMaximum``)
+            default_value (float): Default value when mapping is not possible
         """
         self._print("Transfering...")
         if self.method[:2] == "P1":
@@ -242,7 +243,7 @@ class Remapper:
         self.field_source = field_mc_from_meshio(
             self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc
         )
-        self.field_target = self.remap.transferField(self.field_source, dftValue=np.nan)
+        self.field_target = self.remap.transferField(self.field_source, dftValue=default_value)
         self.field_target.setName(field_name)
         return MappingResult(self.field_target, self.mesh_target)
 

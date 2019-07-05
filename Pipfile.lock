@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5a6aa1a259a856746f0942394b0172d86b99de5dba51db1e0cbd2cf8bfad205d"
+            "sha256": "6174b66dca3b8c9eda048df5bacf1b427bd1858d2db9c004d91eb689b0e0c679"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.6"
+            "python_version": "3.7"
         },
         "sources": [
             {
@@ -82,11 +82,13 @@
         },
         "medcoupling": {
             "hashes": [
-                "sha256:05758c68826d4ee7892828c291e558839ab255535feeeab15ad4377cc2f53b87",
-                "sha256:7822af53fd2ac5db2fbb24bf2dddf50241a5b539c7aa171a8efccf51e15972f2"
+                "sha256:0e0b091b71e4075548c2c6f1eb9de8584155ae91fcd51236097bf38cb48ef11e",
+                "sha256:6444a2064eafcd06b9a32473ad28e7ea6a559db4295f878ff0268ffd455a35f1",
+                "sha256:90713062d0927bc052cadc57d5d63a727ab5bafb0d7226a3aabb5f0c822f3868",
+                "sha256:a05bac10c5ff0db1d5df9b21b6114bf1393cce6c19734df718dfdae706bd7397"
             ],
             "index": "pypi",
-            "version": "==9.3.0.post1"
+            "version": "==9.3.0.post2"
         },
         "meshio": {
             "hashes": [

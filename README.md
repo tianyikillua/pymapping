@@ -22,7 +22,7 @@ To install `pymapping`, you are invited to use `pip` and its associated options
 pip install -U pymapping
 ```
 
-The MEDCoupling library is a strong dependency of this package. Currently by installing via the previous `pip` command it will automatically install the [medcoupling](https://github.com/tianyikillua/medcoupling) Python package (a repackaging of the official library), which requires a Windows / Linux system and a Python 3.6 environment.
+The MEDCoupling library is a strong dependency of this package. Currently by installing via the previous `pip` command it will automatically install the [medcoupling](https://github.com/tianyikillua/medcoupling) Python package (a repackaging of the official library), which requires a Windows / Linux system and a Python 3.6 or 3.7 environment.
 
 ### Testing
 

@@ -2,10 +2,7 @@ language: python
 
 addons:
   apt:
-    sources:
-      - sourceline: 'ppa:deadsnakes/ppa'
     packages:
-      - python3.6-dev
       - gmsh
 
 python:

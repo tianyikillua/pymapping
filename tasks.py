@@ -30,3 +30,9 @@ def tag(c):
 def upload(c):
     print("Uploading wheels from dist/* to PyPI...")
     c.run("twine upload dist/*")
+
+
+@task
+def docs(c):
+    print("Building docs...")
+    c.run("sphinx-build docs docs/_build")

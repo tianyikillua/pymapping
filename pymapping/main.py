@@ -1,8 +1,10 @@
-import numpy as np
+from copy import deepcopy
 
 import medcoupling as mc
+import numpy as np
 
 meshio_to_mc_type = {
+    "vertex": mc.NORM_POINT1,
     "line": mc.NORM_SEG2,
     "triangle": mc.NORM_TRI3,
     "quad": mc.NORM_QUAD4,
@@ -14,6 +16,42 @@ mc_to_meshio_type = {v: k for k, v in meshio_to_mc_type.items()}
 
 celltype_3d = ["tetra", "pyramid", "hexahedron"]
 celltype_2d = ["triangle", "quad"]
+celltype_1d = ["line"]
+celltype_0d = ["vertex"]
+
+
+def meshdim(mesh):
+    """
+    Determine the mesh dimension of a meshio mesh
+
+    Returns:
+        int: Mesh dimension
+    """
+    celltypes = list(mesh.cells.keys())
+    if len(set(celltype_3d).intersection(celltypes)) > 0:
+        meshdim = 3
+    elif len(set(celltype_2d).intersection(celltypes)) > 0:
+        meshdim = 2
+    else:
+        meshdim = 1
+    return meshdim
+
+
+def cleanup_mesh_meshio(mesh):
+    """
+    Drop all cells with a lower dimension from a meshio mesh
+    """
+    meshdim_ = meshdim(mesh)
+    if meshdim_ == 3:
+        celltypes = celltype_2d + celltype_1d + celltype_0d
+    elif meshdim_ == 2:
+        celltypes = celltype_1d + celltype_0d
+    else:
+        celltypes = celltype_0d
+
+    for celltype in celltypes:
+        mesh.cells.pop(celltype, None)
+        mesh.cell_data.pop(celltype, None)
 
 
 def mesh_mc_from_meshio(mesh, check=False):
@@ -24,15 +62,8 @@ def mesh_mc_from_meshio(mesh, check=False):
         mesh (meshio mesh): Mesh object
         check (bool): Check if the medcoupling mesh is consist
     """
-    # Determine mesh dimension
-    celltypes = list(mesh.cells.keys())
-    if len(set(celltype_3d).intersection(celltypes)) > 0:
-        meshdim = 3
-    elif len(set(celltype_2d).intersection(celltypes)) > 0:
-        meshdim = 2
-    else:
-        meshdim = 1
-    mesh_mc = mc.MEDCouplingUMesh("mesh", meshdim)
+    # Initialization
+    mesh_mc = mc.MEDCouplingUMesh("mesh", meshdim(mesh))
 
     # Point coordinates
     coords = mc.DataArrayDouble(mesh.points.copy())
@@ -144,8 +175,6 @@ class MappingResult:
         mapped field
         """
         assert self.mesh_target is not None
-        from copy import deepcopy
-
         mesh_target = deepcopy(self.mesh_target)
         name = self.field_target.getName()
 
@@ -215,10 +244,12 @@ class Remapper:
         self.method = method
 
         self._print("Loading source mesh...")
+        cleanup_mesh_meshio(mesh_source)
         self.mesh_source = mesh_source
         self.mesh_source_mc = mesh_mc_from_meshio(mesh_source)
 
         self._print("Loading target mesh...")
+        cleanup_mesh_meshio(mesh_target)
         self.mesh_target = mesh_target
         self.mesh_target_mc = mesh_mc_from_meshio(mesh_target)
 

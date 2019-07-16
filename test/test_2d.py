@@ -1,7 +1,7 @@
 import numpy as np
+import pygmsh
 import pytest
 
-import pygmsh
 import pymapping
 
 
@@ -32,10 +32,11 @@ mesh_target = mesh_TUB(0.02, recombine=True)
 remap = pymapping.Remapper(verbose=False)
 
 
-@pytest.mark.parametrize(
-    "method", ["P1P1", "P1P0", "P0P1", "P0P0"])
+@pytest.mark.parametrize("method", ["P1P1", "P1P0", "P0P1", "P0P0"])
 def test_TUB_triangle(method):
-    remap.prepare(mesh_source, mesh_target, method=method, intersection_type="Triangulation")
+    remap.prepare(
+        mesh_source, mesh_target, method=method, intersection_type="Triangulation"
+    )
     res = remap.transfer("f(x)")
 
     integral_source = remap.field_source.integral(0, True)

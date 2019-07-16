@@ -14,6 +14,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     import meshio
+
     remap = Remapper(verbose=args.verbose)
 
     mesh_source = meshio.read(args.mesh_source)
@@ -42,21 +43,49 @@ def _get_parser():
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
-    parser.add_argument("mesh_source", type=str, help="meshio-compatible source mesh file")
+    parser.add_argument(
+        "mesh_source", type=str, help="meshio-compatible source mesh file"
+    )
 
-    parser.add_argument("mesh_target", type=str, help="meshio-compatible target mesh file")
+    parser.add_argument(
+        "mesh_target", type=str, help="meshio-compatible target mesh file"
+    )
 
-    parser.add_argument("field_name", type=str, help="field defined in the source mesh to transfer to the target mesh")
+    parser.add_argument(
+        "field_name",
+        type=str,
+        help="field defined in the source mesh to transfer to the target mesh",
+    )
 
-    parser.add_argument("outfile", type=str, help="file to store mapped data: .txt, .npy or meshio-compatible mesh")
+    parser.add_argument(
+        "outfile",
+        type=str,
+        help="file to store mapped data: .txt, .npy or meshio-compatible mesh",
+    )
 
-    parser.add_argument("--method", type=str, choices=["P1P1", "P1P0", "P0P1", "P0P0"], default="P1P1", help="mapping method")
+    parser.add_argument(
+        "--method",
+        type=str,
+        choices=["P1P1", "P1P0", "P0P1", "P0P0"],
+        default="P1P1",
+        help="mapping method",
+    )
 
     parser.add_argument("--intersection_type", type=str, help="intersection algorithm")
 
-    parser.add_argument("--nature", type=str, default="IntensiveMaximum", help="physical nature of the field")
+    parser.add_argument(
+        "--nature",
+        type=str,
+        default="IntensiveMaximum",
+        help="physical nature of the field",
+    )
 
-    parser.add_argument("--verbose", action="store_true", default=False, help="increase output verbosity")
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="increase output verbosity",
+    )
 
     version_text = "\n".join(
         [

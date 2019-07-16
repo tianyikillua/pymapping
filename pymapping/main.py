@@ -77,9 +77,9 @@ def mesh_mc_from_meshio(mesh, check=False):
         ncells_celltype, npoints_celltype = mesh.cells[celltype].shape
         col_celltype = celltype_ * np.ones((ncells_celltype, 1), dtype=np.int32)
         conn_celltype = np.hstack([col_celltype, mesh.cells[celltype]]).flatten()
-        conn_index_celltype = len(conn) + (
-            1 + npoints_celltype
-        ) * np.arange(ncells_celltype, dtype=np.int32)
+        conn_index_celltype = len(conn) + (1 + npoints_celltype) * np.arange(
+            ncells_celltype, dtype=np.int32
+        )
         conn = np.hstack([conn, conn_celltype])
         conn_index = np.hstack([conn_index, conn_index_celltype])
     conn_index = np.hstack([conn_index, [len(conn)]]).astype(np.int32)
@@ -92,7 +92,9 @@ def mesh_mc_from_meshio(mesh, check=False):
     return mesh_mc
 
 
-def field_mc_from_meshio(mesh, field_name, on="points", mesh_mc=None, nature="IntensiveMaximum"):
+def field_mc_from_meshio(
+    mesh, field_name, on="points", mesh_mc=None, nature="IntensiveMaximum"
+):
     """
     Convert a meshio field to a medcoupling field
 
@@ -274,7 +276,9 @@ class Remapper:
         self.field_source = field_mc_from_meshio(
             self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc
         )
-        self.field_target = self.remap.transferField(self.field_source, dftValue=default_value)
+        self.field_target = self.remap.transferField(
+            self.field_source, dftValue=default_value
+        )
         self.field_target.setName(field_name)
         return MappingResult(self.field_target, self.mesh_target)
 

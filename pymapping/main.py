@@ -208,7 +208,7 @@ class MappingResult:
 
 class Remapper:
     """
-    Class for Mapping finite element data between meshes
+    Class for mapping finite element data between meshes
 
     Args:
         verbose (bool): Whehter print out progress information
@@ -234,8 +234,9 @@ class Remapper:
         Args:
             mesh_source (meshio mesh): Source mesh
             mesh_target (meshio mesh): Target mesh
-            method (str): Must be ``P1P0``, ``P1P1``, ``P0P0`` or ``P0P1``
+            method (str): Interpolation methods: ``P1P0``, ``P1P1``, ``P0P0`` or ``P0P1``
             intersection_type (str): Intersection algorithm depending on meshes and the method
+                                     Most used types: ``Triangulation``, ``PointLocator``
         """
         # Select intersection type
         assert method in ["P1P0", "P1P1", "P0P0", "P0P1"]

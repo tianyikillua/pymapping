@@ -18,15 +18,15 @@ f = np.sin(2 * np.pi * mesh_source.points) + 0.5 * np.sin(
 )
 mesh_source.point_data = {"f(x)": f}
 mesh_target = mesh_unit_interval(10)
-remap = pymapping.Remapper(verbose=False)
+mapper = pymapping.Mapper(verbose=False)
 
 
 @pytest.mark.parametrize("intersection_type", ["Triangulation", "PointLocator"])
 def test_P1P1(intersection_type):
-    remap.prepare(
+    mapper.prepare(
         mesh_source, mesh_target, method="P1P1", intersection_type=intersection_type
     )
-    res = remap.transfer("f(x)")
+    res = mapper.transfer("f(x)")
 
     if intersection_type == "PointLocator":
         x_target = res.discretization_points()
@@ -35,7 +35,7 @@ def test_P1P1(intersection_type):
 
 
 def test_P1P0():
-    remap.prepare(
+    mapper.prepare(
         mesh_source, mesh_target, method="P1P0", intersection_type="Triangulation"
     )
-    remap.transfer("f(x)")
+    mapper.transfer("f(x)")

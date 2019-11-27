@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-#
 import sys
 
 import numpy as np
 
 from .__about__ import __copyright__, __version__
-from .main import Remapper
+from .main import Mapper
 
 
 def main(argv=None):
@@ -15,12 +13,12 @@ def main(argv=None):
 
     import meshio
 
-    remap = Remapper(verbose=args.verbose)
+    mapper = Mapper(verbose=args.verbose)
 
     mesh_source = meshio.read(args.mesh_source)
     mesh_target = meshio.read(args.mesh_target)
-    remap.prepare(mesh_source, mesh_target, args.method, args.intersection_type)
-    res = remap.transfer(args.field_name, args.nature)
+    mapper.prepare(mesh_source, mesh_target, args.method, args.intersection_type)
+    res = mapper.transfer(args.field_name, args.nature)
 
     if ".txt" in args.outfile:
         np.savetxt(args.outfile, res.array())

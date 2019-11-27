@@ -29,17 +29,17 @@ for celltype in mesh_source.cells:
     mesh_source.cell_data[celltype] = {"f(x)": array}
 
 mesh_target = mesh_TUB(0.02, recombine=True)
-remap = pymapping.Remapper(verbose=False)
+mapper = pymapping.Mapper(verbose=False)
 
 
 @pytest.mark.parametrize("method", ["P1P1", "P1P0", "P0P1", "P0P0"])
 def test_TUB_triangle(method):
-    remap.prepare(
+    mapper.prepare(
         mesh_source, mesh_target, method=method, intersection_type="Triangulation"
     )
-    res = remap.transfer("f(x)")
+    res = mapper.transfer("f(x)")
 
-    integral_source = remap.field_source.integral(0, True)
+    integral_source = mapper.field_source.integral(0, True)
     integral_target = res.field_target.integral(0, True)
     assert np.isclose(integral_source, integral_target, rtol=1e-4)
 

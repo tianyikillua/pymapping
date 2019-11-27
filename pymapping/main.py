@@ -103,7 +103,7 @@ def field_mc_from_meshio(
         field_name (str): Name of the field defined in the ``meshio`` mesh
         on (str): Support of the field (``points`` or ``cells``)
         mesh_mc (medcoupling mesh): MEDCoupling mesh of the current ``meshio`` mesh
-        nature (str): Physical nature of the field (for instance ``IntensiveMaximum``)
+        nature (str): Physical nature of the field (``IntensiveMaximum``, ``IntensiveConservation``, ``ExtensiveMaximum`` or ``ExtensiveConservation``)
     """
     assert on in ["points", "cells"]
     if on == "points":
@@ -206,7 +206,7 @@ class MappingResult:
         return mesh_target
 
 
-class Remapper:
+class Mapper:
     """
     Class for mapping finite element data between meshes
 
@@ -215,7 +215,6 @@ class Remapper:
     """
 
     def __init__(self, verbose=True):
-        self.remap = mc.MEDCouplingRemapper()
         self.verbose = verbose
 
         self.mesh_source = None
@@ -225,10 +224,12 @@ class Remapper:
         self.field_source = None
         self.field_target = None
 
+        self._mapper = mc.MEDCouplingRemapper()
+
     def prepare(self, mesh_source, mesh_target, method="P1P0", intersection_type=None):
         """
         Prepare field mapping between meshes, must be run before
-        :py:meth:`~.Remapper.transfer`. The source mesh must contain
+        :py:meth:`~.Mapper.transfer`. The source mesh must contain
         the field that you want to transfer to the target mesh.
 
         Args:
@@ -241,9 +242,9 @@ class Remapper:
         # Select intersection type
         assert method in ["P1P0", "P1P1", "P0P0", "P0P1"]
         if intersection_type is not None:
-            self.remap.setIntersectionType(eval("mc." + intersection_type))
+            self._mapper.setIntersectionType(eval("mc." + intersection_type))
         elif method[:2] == "P1":
-            self.remap.setIntersectionType(mc.PointLocator)
+            self._mapper.setIntersectionType(mc.PointLocator)
         self.method = method
 
         self._print("Loading source mesh...")
@@ -257,16 +258,16 @@ class Remapper:
         self.mesh_target_mc = mesh_mc_from_meshio(mesh_target)
 
         self._print("Preparing...")
-        self.remap.prepare(self.mesh_source_mc, self.mesh_target_mc, method)
+        self._mapper.prepare(self.mesh_source_mc, self.mesh_target_mc, method)
 
     def transfer(self, field_name, nature="IntensiveMaximum", default_value=np.nan):
         """
         Transfer field from the source mesh to the target mesh, after
-        :py:meth:`~.Remapper.prepare`.
+        :py:meth:`~.Mapper.prepare`.
 
         Args:
             field_name (str): Name of the field defined in the source mesh
-            nature (str): Physical nature of the field (for instance ``IntensiveMaximum``)
+            nature (str): Physical nature of the field (``IntensiveMaximum``, ``IntensiveConservation``, ``ExtensiveMaximum`` or ``ExtensiveConservation``)
             default_value (float): Default value when mapping is not possible
         """
         self._print("Transfering...")
@@ -275,9 +276,9 @@ class Remapper:
         else:
             on = "cells"
         self.field_source = field_mc_from_meshio(
-            self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc
+            self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc, nature=nature
         )
-        self.field_target = self.remap.transferField(
+        self.field_target = self._mapper.transferField(
             self.field_source, dftValue=default_value
         )
         self.field_target.setName(field_name)

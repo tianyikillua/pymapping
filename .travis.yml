@@ -6,7 +6,7 @@ addons:
       - gmsh
 
 python:
-  - "3.6"
+  - "3.7"
 
 before_install:
   - pip3 install -U -r test_requirements.txt

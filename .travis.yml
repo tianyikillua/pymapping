@@ -12,7 +12,7 @@ before_install:
   - pip3 install -U -r test_requirements.txt
 
 install:
-  - pip3 install .
+  - pip3 install -U .
 
 script:
   - cd $TRAVIS_BUILD_DIR/test

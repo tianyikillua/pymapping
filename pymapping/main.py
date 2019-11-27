@@ -235,7 +235,7 @@ class Mapper:
         Args:
             mesh_source (meshio mesh): Source mesh
             mesh_target (meshio mesh): Target mesh
-            method (str): Interpolation methods: ``P1P0``, ``P1P1``, ``P0P0`` or ``P0P1``
+            method (str): Mapping methods: ``P1P0``, ``P1P1``, ``P0P0`` or ``P0P1``
             intersection_type (str): Intersection algorithm depending on meshes and the method
                                      Most used types: ``Triangulation``, ``PointLocator``
         """

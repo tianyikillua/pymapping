@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import medcoupling as mc
 import numpy as np
+from meshio import CellBlock
 
 meshio_to_mc_type = {
     "vertex": mc.NORM_POINT1,
@@ -27,7 +28,7 @@ def meshdim(mesh):
     Returns:
         int: Mesh dimension
     """
-    celltypes = list(mesh.cells.keys())
+    celltypes = list(mesh.cells_dict.keys())
     if len(set(celltype_3d).intersection(celltypes)) > 0:
         meshdim = 3
     elif len(set(celltype_2d).intersection(celltypes)) > 0:
@@ -49,9 +50,19 @@ def cleanup_mesh_meshio(mesh):
     else:
         celltypes = celltype_0d
 
+    cells = mesh.cells_dict
+    cell_data = mesh.cell_data_dict
     for celltype in celltypes:
-        mesh.cells.pop(celltype, None)
-        mesh.cell_data.pop(celltype, None)
+        cells.pop(celltype, None)
+    for key in cell_data:
+        for celltype in celltypes:
+            cell_data[key].pop(celltype, None)
+
+    mesh.cells = []
+    for celltype, data in cells.items():
+        mesh.cells.append(CellBlock(celltype, data))
+    for key in mesh.cell_data:
+        mesh.cell_data[key] = list(cell_data[key].values())
 
 
 def mesh_mc_from_meshio(mesh, check=False):
@@ -70,13 +81,14 @@ def mesh_mc_from_meshio(mesh, check=False):
     mesh_mc.setCoords(coords)
 
     # Cells
+    cells_dict = mesh.cells_dict
     conn = np.array([], dtype=np.int32)
     conn_index = np.array([], dtype=np.int32)
-    for celltype in mesh.cells:
+    for celltype in cells_dict:
         celltype_ = meshio_to_mc_type[celltype]
-        ncells_celltype, npoints_celltype = mesh.cells[celltype].shape
+        ncells_celltype, npoints_celltype = cells_dict[celltype].shape
         col_celltype = celltype_ * np.ones((ncells_celltype, 1), dtype=np.int32)
-        conn_celltype = np.hstack([col_celltype, mesh.cells[celltype]]).flatten()
+        conn_celltype = np.hstack([col_celltype, cells_dict[celltype]]).flatten()
         conn_index_celltype = len(conn) + (1 + npoints_celltype) * np.arange(
             ncells_celltype, dtype=np.int32
         )
@@ -122,13 +134,13 @@ def field_mc_from_meshio(
     else:
         # Cell fields
         assert on == "cells"
+        assert field_name in mesh.cell_data_dict
         array = None
         celltypes_mc = mesh_mc.getAllGeoTypesSorted()
         for celltype_mc in celltypes_mc:
             celltype = mc_to_meshio_type[celltype_mc]
-            assert celltype in mesh.cell_data
-            assert field_name in mesh.cell_data[celltype]
-            values = mesh.cell_data[celltype][field_name]
+            assert celltype in mesh.cell_data_dict[field_name]
+            values = mesh.cell_data_dict[field_name][celltype]
             if array is None:
                 array = values
             else:
@@ -190,10 +202,9 @@ class MappingResult:
             celltypes_mc = mesh_mc.getAllGeoTypesSorted()
             begin = None
             end = None
+            cell_data = {}
             for celltype_mc in celltypes_mc:
                 celltype = mc_to_meshio_type[celltype_mc]
-                if celltype not in mesh_target.cell_data:
-                    mesh_target.cell_data[celltype] = {}
                 len_mesh_celltype = mesh_mc.getNumberOfCellsWithType(celltype_mc)
                 if begin is None:
                     begin = 0
@@ -201,7 +212,14 @@ class MappingResult:
                 else:
                     begin = end
                     end = begin + len_mesh_celltype
-                mesh_target.cell_data[celltype][name] = array[begin:end]
+                cell_data[celltype] = array[begin:end]
+
+            mesh_target.cell_data[name] = []
+            for celltype in mesh_target.cells_dict.keys():
+                for key in cell_data:
+                    if celltype == key:
+                        mesh_target.cell_data[name].append(cell_data[key])
+                        break
 
         return mesh_target
 
@@ -276,7 +294,11 @@ class Mapper:
         else:
             on = "cells"
         self.field_source = field_mc_from_meshio(
-            self.mesh_source, field_name, on=on, mesh_mc=self.mesh_source_mc, nature=nature
+            self.mesh_source,
+            field_name,
+            on=on,
+            mesh_mc=self.mesh_source_mc,
+            nature=nature,
         )
         self.field_target = self._mapper.transferField(
             self.field_source, dftValue=default_value

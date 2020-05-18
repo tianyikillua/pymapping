@@ -11,22 +11,20 @@ def mesh_TUB(h, recombine=False):
     if recombine:
         geom.add_raw_code("Recombine Surface {%s};" % polygon.surface.id)
     mesh = pygmsh.generate_mesh(geom, dim=2, verbose=False, prune_z_0=True)
-    for celltype in ["vertex", "line"]:
-        mesh.cells.pop(celltype, None)
-        mesh.cell_data.pop(celltype, None)
+    pymapping.cleanup_mesh_meshio(mesh)
     return mesh
 
 
 mesh_source = mesh_TUB(0.01, recombine=True)
 f = 2 * mesh_source.points[:, 0] + mesh_source.points[:, 1]
 mesh_source.point_data = {"f(x)": f}
-for celltype in mesh_source.cells:
-    array = np.zeros(len(mesh_source.cells[celltype]))
-    for i, cell in enumerate(mesh_source.cells[celltype]):
+mesh_source.cell_data["f(x)"] = []
+for cells in mesh_source.cells:
+    array = np.zeros(len(cells.data))
+    for i, cell in enumerate(cells.data):
         centroid = np.mean(mesh_source.points[cell], axis=0)
-        f = 2 * centroid[0] + centroid[1]
-        array[i] = f
-    mesh_source.cell_data[celltype] = {"f(x)": array}
+        array[i] = 2 * centroid[0] + centroid[1]
+    mesh_source.cell_data["f(x)"].append(array)
 
 mesh_target = mesh_TUB(0.02, recombine=True)
 mapper = pymapping.Mapper(verbose=False)

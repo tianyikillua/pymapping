@@ -6,11 +6,14 @@ import pymapping
 
 
 def mesh_TUB(h, recombine=False):
-    geom = pygmsh.built_in.Geometry()
-    polygon = geom.add_polygon([[1 / 3, 1 / 3, 0], [1, 0, 0], [0.5, 0.5, 0]], lcar=h)
-    if recombine:
-        geom.add_raw_code("Recombine Surface {%s};" % polygon.surface.id)
-    mesh = pygmsh.generate_mesh(geom, dim=2, verbose=False, prune_z_0=True)
+    with pygmsh.geo.Geometry() as geom:
+        polygon = geom.add_polygon(
+            [[1 / 3, 1 / 3, 0], [1, 0, 0], [0.5, 0.5, 0]], mesh_size=h
+        )
+        if recombine:
+            geom.set_recombined_surfaces([polygon])
+        mesh = geom.generate_mesh(dim=2, verbose=False)
+    mesh.points = mesh.points[:, :2]
     pymapping.cleanup_mesh_meshio(mesh)
     return mesh
 
